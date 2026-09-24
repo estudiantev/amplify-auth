@@ -1,40 +1,101 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import { useState } from 'react';
+import { Amplify } from 'aws-amplify';
+import { signUp, confirmSignUp } from 'aws-amplify/auth';
+import outputs from '../amplify_outputs.json';
 
-const client = generateClient<Schema>();
+Amplify.configure(outputs);
 
-function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+export default function App() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
+  async function handleRegister(e: React.FormEvent) {
+    e.preventDefault();
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+    try {
+      await signUp({
+        username: email,
+        password,
+        options: {
+          userAttributes: {
+            email: email,
+          },
+        },
+      });
+
+      setShowConfirmation(true);
+      setMessage('Se envió un código a tu correo.');
+    } catch (error) {
+      console.error(error);
+      setMessage('No se pudo crear la cuenta.');
+    }
+  }
+
+  async function handleConfirm(e: React.FormEvent) {
+    e.preventDefault();
+
+    try {
+      await confirmSignUp({
+        username: email,
+        confirmationCode: code,
+      });
+
+      setMessage('¡Cuenta confirmada correctamente!');
+    } catch (error) {
+      console.error(error);
+      setMessage('El código de confirmación no es correcto.');
+    }
   }
 
   return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-          Review next step of this tutorial.
-        </a>
+    <main className="container">
+      <div className="register-card">
+        <h1>Crear una cuenta</h1>
+        <p>Continuar con correo</p>
+
+        {!showConfirmation ? (
+          <form onSubmit={handleRegister}>
+            <label>Correo electrónico</label>
+            <input
+              type="email"
+              placeholder="Correo"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+            <label>Contraseña</label>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <button type="submit"> Crear cuenta </button>
+          </form>
+        ) : (
+          <form onSubmit={handleConfirm}>
+            <label>Código de confirmación</label>
+
+            <input
+              type="text"
+              placeholder="Ingresa el código"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+            />
+
+            <button type="submit"> Confirmar cuenta </button>
+          </form>
+        )}
+
+        {message && <p className="message">{message}</p>}
       </div>
     </main>
   );
 }
-
-export default App;
