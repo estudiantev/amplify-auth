@@ -10,8 +10,8 @@ Amplify.configure(outputs);
 
 export default function App() {
 
-  const [givenName, setGivenName] = useState('');
-  const [familyName, setFamilyName] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,8 +35,8 @@ export default function App() {
         options: {
           userAttributes: {
             email: email,
-            given_name: givenName,
-            family_name: familyName,
+            given_name: nombre,
+            family_name: apellido,
           },
         },
 
@@ -96,8 +96,8 @@ export default function App() {
             <input
               type="text"
               placeholder="Nombre"
-              value={givenName}
-              onChange={(e) => setGivenName(e.target.value)}
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
               required
             />
 
@@ -106,8 +106,8 @@ export default function App() {
             <input
               type="text"
               placeholder="Apellido"
-              value={familyName}
-              onChange={(e) => setFamilyName(e.target.value)}
+              value={apellido}
+              onChange={(e) => setApellido(e.target.value)}
               required
             />
 
