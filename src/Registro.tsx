@@ -10,6 +10,13 @@ export default function Registro() {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [message, setMessage] = useState('');
 
+    // requisitos de la contraseña aws-cognito
+    const tieneLongitud = contraseña.length >= 8;
+    const tieneMayuscula = /[A-Z]/.test(contraseña);
+    const tieneMinuscula = /[a-z]/.test(contraseña);
+    const tieneNumero = /[0-9]/.test(contraseña);
+    const tieneSimbolo = /[^A-Za-z0-9]/.test(contraseña);
+
     async function handleRegistro(e: React.FormEvent) {
         e.preventDefault();
 
@@ -80,6 +87,27 @@ export default function Registro() {
                             onChange={(e) => setContraseña(e.target.value)}
                             required
                         />
+                        <p>La contraseña debe contener:</p>
+                        <ul>
+                        <li>
+                           {tieneLongitud ? '✓' : '✗'} Al menos 8 caracteres
+                        </li>
+                        <li>
+                           {tieneMayuscula ? '✓' : '✗'} Una letra mayúscula
+                        </li>
+
+                        <li>
+                           {tieneMinuscula ? '✓' : '✗'} Una letra minúscula
+                        </li>
+
+                        <li>
+                           {tieneNumero ? '✓' : '✗'} Un número
+                        </li>
+
+                        <li>
+                           {tieneSimbolo ? '✓' : '✗'} Un símbolo
+                        </li>
+                       </ul>
                     </div>
                     <button type="submit">Crear cuenta</button>
                 </form>
