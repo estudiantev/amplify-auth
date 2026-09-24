@@ -1,64 +1,118 @@
 import { useState } from 'react';
+
 import { Amplify } from 'aws-amplify';
+
 import { signUp, confirmSignUp } from 'aws-amplify/auth';
+
 import outputs from '../amplify_outputs.json';
 
 Amplify.configure(outputs);
 
 export default function App() {
+
+  const [givenName, setGivenName] = useState('');
+  const [familyName, setFamilyName] = useState('');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const [code, setCode] = useState('');
+
   const [showConfirmation, setShowConfirmation] = useState(false);
+
   const [message, setMessage] = useState('');
 
   async function handleRegister(e: React.FormEvent) {
+
     e.preventDefault();
 
     try {
+
       await signUp({
         username: email,
         password,
+
         options: {
           userAttributes: {
             email: email,
+            given_name: givenName,
+            family_name: familyName,
           },
         },
+
       });
 
       setShowConfirmation(true);
+
       setMessage('Se envió un código a tu correo.');
+
     } catch (error) {
+
       console.error(error);
+
       setMessage('No se pudo crear la cuenta.');
+
     }
   }
 
   async function handleConfirm(e: React.FormEvent) {
+
     e.preventDefault();
 
     try {
+
       await confirmSignUp({
         username: email,
         confirmationCode: code,
       });
 
       setMessage('¡Cuenta confirmada correctamente!');
+
     } catch (error) {
+
       console.error(error);
+
       setMessage('El código de confirmación no es correcto.');
+
     }
   }
 
   return (
+
     <main className="container">
+
       <div className="register-card">
+
         <h1>Crear una cuenta</h1>
+
         <p>Continuar con correo</p>
 
         {!showConfirmation ? (
+
           <form onSubmit={handleRegister}>
+
+            <label>Nombre</label>
+
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={givenName}
+              onChange={(e) => setGivenName(e.target.value)}
+              required
+            />
+
+            <label>Apellido</label>
+
+            <input
+              type="text"
+              placeholder="Apellido"
+              value={familyName}
+              onChange={(e) => setFamilyName(e.target.value)}
+              required
+            />
+
             <label>Correo electrónico</label>
+
             <input
               type="email"
               placeholder="Correo"
@@ -68,6 +122,7 @@ export default function App() {
             />
 
             <label>Contraseña</label>
+
             <input
               type="password"
               placeholder="Contraseña"
@@ -76,10 +131,16 @@ export default function App() {
               required
             />
 
-            <button type="submit"> Crear cuenta </button>
+            <button type="submit">
+              Crear cuenta
+            </button>
+
           </form>
+
         ) : (
+
           <form onSubmit={handleConfirm}>
+
             <label>Código de confirmación</label>
 
             <input
@@ -90,12 +151,19 @@ export default function App() {
               required
             />
 
-            <button type="submit"> Confirmar cuenta </button>
+            <button type="submit">
+              Confirmar cuenta
+            </button>
+
           </form>
+
         )}
 
         {message && <p className="message">{message}</p>}
+
       </div>
+
     </main>
+
   );
 }
