@@ -2,7 +2,11 @@ import { defineAuth } from '@aws-amplify/backend';
 
 export const auth = defineAuth({
   loginWith: {
-    email: true,
+    email: {
+      verificationEmailStyle: "CODE",
+      verificationEmailSubject: "Verifica tu cuenta en Fara Collections",
+      verificationEmailBody: (createCode) => `Tu código de verificación es: ${createCode()}`,
+    },
   },
   userAttributes: {
     // especificar nombre de pila "given_name" como atributo
